@@ -1,0 +1,99 @@
+{
+  "geometry": {
+    "wheel_diameter_m": 0.05,
+    "track_width_m": 0.1,
+    "camera_height_m": 0.11,
+    "camera_pitch_deg": 0,
+    "robot_width_m": 0.2,
+    "robot_length_m": 0.3,
+    "camera_forward_m": 0.12,
+    "footprint_confirmed": false
+  },
+  "motor": {
+    "left": [
+      5,
+      6,
+      12
+    ],
+    "right": [
+      13,
+      19,
+      18
+    ],
+    "left_sign": 1,
+    "right_sign": 1,
+    "full_speed_left_m_s": 0.25,
+    "full_speed_right_m_s": 0.25,
+    "deadband": 0.25,
+    "pwm_hz": 100,
+    "watchdog_s": 0.4,
+    "calibrated": false
+  },
+  "sensors": {
+    "i2c_bus": 1,
+    "imu_address": 104,
+    "ads_address": 72,
+    "ina_address": 64,
+    "divider_ratio": 3.127659574468085,
+    "voltage_correction": 1.0,
+    "shunt_ohm": 0.1,
+    "current_sign": 1,
+    "battery_calibrated": false,
+    "current_sees_charge": false,
+    "imu_flat_confirmed": false
+  },
+  "camera": {
+    "width": 640,
+    "height": 480,
+    "calibration": "data/camera.json",
+    "floor_profile": "data/floor.json",
+    "floor_tolerance": 28,
+    "max_range_m": 2.5,
+    "min_confidence": 0.45,
+    "stale_s": 0.7
+  },
+  "navigation": {
+    "resolution_m": 0.05,
+    "map_size_m": 10.0,
+    "speed_m_s": 0.06,
+    "angular_speed_rad_s": 0.5,
+    "clearance_m": 0.08,
+    "stop_distance_m": 0.45,
+    "physical_max_travel_m": 2.0,
+    "max_leg_seconds": 180,
+    "exploration_seconds": 300,
+    "allow_physical_autonomy": false
+  },
+  "dock": {
+    "marker_id": 0,
+    "marker_size_m": 0.1,
+    "staging_distance_m": 0.55,
+    "reverse_distance_m": 0.25,
+    "reverse_speed_m_s": 0.025,
+    "reverse_timeout_s": 15,
+    "rear_clearance_confirmed": false,
+    "geometry_calibrated": false,
+    "charger_verified": false,
+    "charge_confirm_seconds": 2.0,
+    "current_threshold_a": -0.05
+  },
+  "battery": {
+    "low_voltage": 6.8,
+    "critical_voltage": 6.4,
+    "full_voltage": 8.4
+  },
+  "vision": {
+    "yolo_enabled": true,
+    "model": "assets/yolov8n.onnx",
+    "input_size": 320,
+    "confidence": 0.45,
+    "every_n_frames": 3
+  },
+  "server": {
+    "host": "127.0.0.1",
+    "port": 8080
+  },
+  "simulation": {
+    "seed": 7
+  }
+}

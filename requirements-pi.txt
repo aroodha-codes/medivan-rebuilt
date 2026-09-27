@@ -1,0 +1,4 @@
+# Use system Picamera2 / OpenCV / NumPy from apt in a --system-site-packages venv.
+Flask>=3.0,<4
+smbus2>=0.4,<1
+gpiozero>=2,<3
