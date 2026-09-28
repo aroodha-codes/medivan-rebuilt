@@ -7,6 +7,7 @@ import json
 import math
 from pathlib import Path
 import secrets
+import subprocess
 import shutil
 import sys
 import threading
@@ -229,7 +230,12 @@ def main():
     next_fit = args.views
     try:
         server = start_preview(shared, lock, args.host, args.port, token)
-        print(f"Preview: http://YOUR_PI_IP:{args.port}/?token={token}", flush=True)
+        try:
+            addresses = subprocess.check_output(["hostname", "-I"], text=True, timeout=2).split()
+            address = next((ip for ip in addresses if ip.count(".") == 3), "127.0.0.1")
+        except (OSError, subprocess.SubprocessError):
+            address = "127.0.0.1"
+        print(f"Preview: http://{address}:{args.port}/?token={token}", flush=True)
         print(
             f"Pattern: {args.columns} × {args.rows} INNER corners. No motors are initialized.",
             flush=True,
@@ -248,10 +254,11 @@ def main():
                 gray,
                 pattern,
                 flags=cv2.CALIB_CB_ADAPTIVE_THRESH
-                | cv2.CALIB_CB_NORMALIZE_IMAGE
-                | cv2.CALIB_CB_FAST_CHECK,
+                | cv2.CALIB_CB_NORMALIZE_IMAGE,
             )
-            message = "Show the complete checkerboard, including its outer squares."
+            if not found and hasattr(cv2, "findChessboardCornersSB"):
+                found, corners = cv2.findChessboardCornersSB(gray, pattern)
+            message = "Board not detected. Show all 10 × 7 squares with a white border and good light."
             now = time.monotonic()
             if found:
                 corners = cv2.cornerSubPix(
@@ -272,21 +279,23 @@ def main():
                     ],
                     cv2.CV_64F,
                 ).var()
-                stable = previous is not None and np.linalg.norm(d - previous) < 0.015
-                if not stable:
+                movement = float(np.linalg.norm(d - previous)) if previous is not None else float("inf")
+                stable = movement < 0.04
+                if stable_since is None or not stable:
                     stable_since = now
                 previous = d
-                distinct = all(np.linalg.norm(d - old) > 0.09 for old in descs)
+                distinct = all(np.linalg.norm(d - old) > 0.055 for old in descs)
                 if x < 8 or y < 8 or x2 > size[0] - 8 or y2 > size[1] - 8:
                     message = "Move the board away from the image edge."
                 elif min(x2 - x, y2 - y) < 70:
                     message = "Move the board closer: it is too small."
-                elif sharpness < 45:
+                elif sharpness < 30:
                     message = (
-                        "Image is blurred. Improve light and hold the board still."
+                        f"Board found but image is blurred (score {sharpness:.0f}). "
+                        "Improve light and hold it steady."
                     )
-                elif not stable or stable_since is None or now - stable_since < 0.45:
-                    message = "Hold this position briefly…"
+                elif not stable or stable_since is None or now - stable_since < 0.30:
+                    message = "Board found. Hold steady for half a second…"
                 elif not distinct:
                     message = "Already captured this view. Move to another region, change distance, or tilt."
                 elif now - last_capture < 1.2:
